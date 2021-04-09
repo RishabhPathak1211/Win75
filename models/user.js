@@ -30,15 +30,19 @@ UserSchema.statics.findAndValidate = async function(username, password) {
 };
 
 UserSchema.pre('save', async function (next) {
-    this.password = await bcrypt.hash(this.password, 12);
-    let tmpReferral = await cryptoRandomString({ length: 10 });
-    let exists = await this.findOne({ referral: tmpReferral });
-    while (exists) {
+    try {
+        this.password = await bcrypt.hash(this.password, 12);
         let tmpReferral = await cryptoRandomString({ length: 10 });
         let exists = await this.findOne({ referral: tmpReferral });
+        while (exists) {
+            let tmpReferral = await cryptoRandomString({ length: 10 });
+            let exists = await this.findOne({ referral: tmpReferral });
+        }
+        this.referral = tmpReferral;
+        next();
+    } catch (err) {
+        next(err);
     }
-    this.referral = tmpReferral;
-    next();
 });
 
 module.exports = mongoose.model('User', UserSchema);
