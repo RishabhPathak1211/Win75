@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const path = require('path');
 const session = require('express-session');
 const MongoDBStore = require('connect-mongo');
-const { execPath } = require('process');
+const userRoutes = require('./routes/user');
 
 const dbUrl = process.env.DB_URL;
 
@@ -33,6 +33,8 @@ app.use(session({
     cookie: {
         httpOnly: true,
     }
-}))
+}));
+
+app.use('/user', userRoutes);
 
 module.exports = { app, db };
