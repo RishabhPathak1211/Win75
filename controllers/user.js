@@ -21,10 +21,24 @@ module.exports.register = async (req, res) => {
         const newUser = new User({ username, phone, password });
         await newUser.save();
 
+        req.session.username = null;
+        req.session.phone = null;
+        req.session.password = null;
+        req.session.otp = null;
+
         req.session.user_id = newUser._id;
         console.log(req.session);
-        res.send('Registration Succesful');
+        return res.send('Registration Succesful');
     }
+    res.send('OTP mismatch');
+}
+
+module.exports.destroySession = (req, res) => {
+    if (!req.session.user_id) {
+        req.session.destroy();
+        return res.send('Session detroyed');
+    }
+    res.send('user id exists');
 }
 
 module.exports.login = async (req, res) => {
