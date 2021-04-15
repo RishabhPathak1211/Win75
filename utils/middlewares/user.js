@@ -2,13 +2,14 @@ const User = require('../../models/user');
 
 module.exports.isLoggedIn = (req, res, next) => {
     if (!req.session.user_id) {
-        return res.send('Not logged in');
+        return res.status(403).json({ 'status': false, 'msg': 'Not logged in' });
     }
     next();
 }
 
 module.exports.newUserValidity = async (req, res, next) => {
     const { username, phone, password, referral } = req.body;
+    console.log({ username, phone, password });
     const user = await User.findOne({
         $or: [
             { username },
@@ -16,13 +17,13 @@ module.exports.newUserValidity = async (req, res, next) => {
         ]
     })
     if (user) {
-        return res.send('User Exists');
+        return res.status(403).json({ 'status': false, 'msg': 'User already exists' });
     }
 
     if (referral) {
         const refUser = await User.findOne({ referral });
         if (!refUser) {
-            return res.send('Invalid Referral Code');
+            return res.status(403).json({ 'status': false, 'msg': 'Invalid referral code' });
         }
         req.session.refUser = refUser;
     }
@@ -30,6 +31,8 @@ module.exports.newUserValidity = async (req, res, next) => {
     req.session.username = username;
     req.session.phone = phone;
     req.session.password = password;
+
+    console.log(req.session);
 
     next();
 }
@@ -43,7 +46,7 @@ module.exports.userExists = async (req, res, next) => {
         ]
     });
     if (!user) {
-        return res.send('User not found');
+        return res.status(403).json({ 'status': false, 'msg': 'Credential mismatch' });
     }
 
     req.session.username = username;

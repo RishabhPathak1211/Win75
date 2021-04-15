@@ -18,8 +18,8 @@ router.get('/logout', userMiddlewares.isLoggedIn, userFunctions.logout);
 
 router.get('/sessionCheck', userFunctions.destroySession);
 
-router.post('/passwordResetOTP', catchAsync(userMiddlewares.userExists), catchAsync(userFunctions.sendOTP));
+// router.post('/passwordResetOTP', catchAsync(userMiddlewares.userExists), catchAsync(userFunctions.sendOTP));
 
-router.post('/passwordReset', catchAsync(userFunctions.forgotPassword));
+// router.post('/passwordReset', catchAsync(userFunctions.forgotPassword));
 
 module.exports = router;

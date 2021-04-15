@@ -5,12 +5,15 @@ module.exports.sendOTP = (req, res) => {
     const otp = (Math.floor(100000 + Math.random() * 900000)).toString();
     console.log(otp);
     req.session.otp = otp;
-    res.send(otp);
+    res.status(200).json({ 'otp': otp});
 }
 
 module.exports.register = async (req, res) => {
     const { otp } = req.body;
+    console.log(req.session);
     const { username, phone, password, referral } = req.session;
+
+    console.log({ username, phone, password });
 
     if (otp === req.session.otp) {
         if (referral) {
@@ -28,9 +31,9 @@ module.exports.register = async (req, res) => {
 
         req.session.user_id = newUser._id;
         console.log(req.session);
-        return res.send('Registration Succesful');
+        return res.status(200).json({ 'status': true, 'msg': 'Registration Succesful' });
     }
-    res.send('OTP mismatch');
+    res.status(403).json({ 'status': false, 'msg': 'OTP mismatch' });
 }
 
 module.exports.destroySession = (req, res) => {
@@ -48,14 +51,14 @@ module.exports.login = async (req, res) => {
     if (foundUser) {
         req.session.user_id = foundUser._id;
         console.log(req.session);
-        return res.send('Logged in');
+        return res.status(200).json({ 'status': true, 'msg': 'Logged in' });
     }
-    res.send('Invalid Credentials');
+    res.status(403).json({ 'status': true, 'msg': 'Invalid credentials' });
 }
 
-module.exports.logout = async (req, res) => {
+module.exports.logout = (req, res) => {
     req.session.destroy();
-    res.send('Logged out');
+    res.status(200).json({ 'status': true, 'msg': 'Logged out' });
 }
 
 module.exports.forgotPassword = async (req, res) => {
