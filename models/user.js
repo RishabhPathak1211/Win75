@@ -17,6 +17,10 @@ const UserSchema = new mongoose.Schema({
     },
     referral: {
         type: String
+    },
+    products: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Product'
     }
 });
 
