@@ -29,9 +29,21 @@ const ProductSchema = new mongoose.Schema({
 });
 
 ProductSchema.post('save', async function (doc) {
-    const user = await User.findById(doc.author);
-    user.products.push(doc._id);
-    await user.save();
+    if (doc) {
+        const user = await User.findById(doc.author);
+        user.products.push(doc._id);
+        await user.save();
+    }
 })
+
+ProductSchema.post('findOneAndDelete', async function (doc) {
+    if (doc) {
+        const user = await User.findById(doc.author);
+        const index = user.products.indexOf(doc._id);
+        if (index > -1)
+            user.products.splice(index, 1);
+        await user.save();
+    }
+});
 
 module.exports = mongoose.model('Product', ProductSchema);

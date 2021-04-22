@@ -4,6 +4,7 @@ const path = require('path');
 const session = require('express-session');
 const MongoDBStore = require('connect-mongo');
 const userRoutes = require('./routes/user');
+const productRoutes = require('./routes/product');
 
 const dbUrl = process.env.DB_URL;
 
@@ -36,5 +37,6 @@ app.use(session({
 }));
 
 app.use('/user', userRoutes);
+app.use('/product', productRoutes);
 
 module.exports = { app, db };

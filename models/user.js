@@ -15,11 +15,16 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Password cannot be blank']
     },
+    wallet: {
+        type: Number,
+        default: 500
+    },
     referral: {
         type: String
     },
     products: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: [mongoose.Schema.Types.ObjectId],
+        default: [],
         ref: 'Product'
     }
 });
