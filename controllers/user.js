@@ -3,6 +3,7 @@ const User = require('../models/user');
 
 module.exports.sendOTP = (req, res) => {
     const otp = (Math.floor(100000 + Math.random() * 900000)).toString();
+    console.log('Otp:')
     console.log(otp);
     req.session.otp = otp;
     res.status(200).json({ 'otp': otp});
@@ -10,9 +11,11 @@ module.exports.sendOTP = (req, res) => {
 
 module.exports.register = async (req, res) => {
     const { otp } = req.body;
+    console.log('session in /register');
     console.log(req.session);
     const { username, phone, password, referral } = req.session;
 
+    console.log('data from session:')
     console.log({ username, phone, password });
 
     if (otp === req.session.otp) {
@@ -24,12 +27,13 @@ module.exports.register = async (req, res) => {
         const newUser = new User({ username, phone, password });
         await newUser.save();
 
-        req.session.username = null;
-        req.session.phone = null;
-        req.session.password = null;
-        req.session.otp = null;
+        delete req.session.username;
+        delete req.session.phone;
+        delete req.session.password;
+        delete req.session.otp;
 
         req.session.user_id = newUser._id;
+        console.log('Session after registration');
         console.log(req.session);
         return res.status(200).json({ 'status': true, 'msg': 'Registration Succesful' });
     }
@@ -61,6 +65,10 @@ module.exports.logout = (req, res) => {
     res.status(200).json({ 'status': true, 'msg': 'Logged out' });
 }
 
+module.exports.userData = (req, res) => {
+    
+}
+ 
 module.exports.forgotPassword = async (req, res) => {
     const { newpassword } = req.body;
     const foundUser = await User.findOne({ username });

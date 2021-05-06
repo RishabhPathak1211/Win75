@@ -39,4 +39,14 @@ app.use(session({
 app.use('/user', userRoutes);
 app.use('/product', productRoutes);
 
+// app.use('/', (req, res) => {
+//     // console.log(req.headers);
+//     // console.log(res);
+//     console.log(res.req.session);
+//     console.log(res.req.sessionID);
+//     // console.log(res['headers']);
+//     // console.log(res.req.headers);
+//     res.send(req.headers);
+// })
+
 module.exports = { app, db };

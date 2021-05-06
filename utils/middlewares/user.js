@@ -1,7 +1,9 @@
 const User = require('../../models/user');
 
 module.exports.isLoggedIn = (req, res, next) => {
+    console.log(req.session);
     if (!req.session.user_id) {
+        console.log('not logged in');
         return res.status(403).json({ 'status': false, 'msg': 'Not logged in' });
     }
     next();
@@ -9,6 +11,7 @@ module.exports.isLoggedIn = (req, res, next) => {
 
 module.exports.newUserValidity = async (req, res, next) => {
     const { username, phone, password, referral } = req.body;
+    console.log('middleware form data:');
     console.log({ username, phone, password });
     const user = await User.findOne({
         $or: [
@@ -32,6 +35,7 @@ module.exports.newUserValidity = async (req, res, next) => {
     req.session.phone = phone;
     req.session.password = password;
 
+    console.log('session after middleware completion:');
     console.log(req.session);
 
     next();
