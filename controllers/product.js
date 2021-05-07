@@ -3,14 +3,15 @@ const Product = require('../models/product');
 module.exports.premiumProducts = async (req, res) => {
     const { category } = req.query;
     try {
-        const products = await Product.find({ category })
+        let products = await Product.find({ category })
                                 .populate({
                                     path: 'author',
                                     match: { 
                                         premium: true,
-                                        // _id: { $ne: req.session.user_id }
+                                        _id: { $ne: req.session.user_id }
                                     }
-                                 });
+                                });
+        products = products.filter(doc => doc.author !== null);
         return res.status(200).json({ status: true, products });
     } catch (e) {
         console.log(e);
@@ -35,7 +36,7 @@ module.exports.createProduct = async (req, res) => {
 module.exports.viewProduct = async (req, res) => {
     try {
         const { id } = req.params;
-        const product = await Product.findById(id);
+        const product = await Product.findById(id).populate('author');
         if (product) {
             return res.status(200).json({ 'status': true, product });
         }
