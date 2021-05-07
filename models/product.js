@@ -12,6 +12,7 @@ const ProductSchema = new mongoose.Schema({
         required: [true, 'Title is required']
     },
     imgs: [ImageSchema],
+    imageUrl: String,
     description: {
         type: String,
         required: [true, 'Description is required']
@@ -20,7 +21,7 @@ const ProductSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     },
-    cost: Number,
+    price: Number,
     category: {
         type: [String],
         default: ['Books']
@@ -31,7 +32,7 @@ const ProductSchema = new mongoose.Schema({
 ProductSchema.post('save', async function (doc) {
     if (doc) {
         const user = await User.findById(doc.author);
-        user.products.push(doc._id);
+        user.myProducts.push(doc._id);
         await user.save();
     }
 })
@@ -41,7 +42,7 @@ ProductSchema.post('findOneAndDelete', async function (doc) {
         const user = await User.findById(doc.author);
         const index = user.products.indexOf(doc._id);
         if (index > -1)
-            user.products.splice(index, 1);
+            user.myProducts.splice(index, 1);
         await user.save();
     }
 });

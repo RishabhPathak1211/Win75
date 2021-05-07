@@ -57,7 +57,7 @@ module.exports.login = async (req, res) => {
         console.log(req.session);
         return res.status(200).json({ 'status': true, 'msg': 'Logged in' });
     }
-    res.status(403).json({ 'status': true, 'msg': 'Invalid credentials' });
+    res.status(403).json({ 'status': false, 'msg': 'Invalid credentials' });
 }
 
 module.exports.logout = (req, res) => {
@@ -65,8 +65,15 @@ module.exports.logout = (req, res) => {
     res.status(200).json({ 'status': true, 'msg': 'Logged out' });
 }
 
-module.exports.userData = (req, res) => {
-    
+module.exports.userData = async (req, res) => {
+    try {
+        const user = await User.findById(req.session.user_id).populate('myProducts').populate('favProducts');
+        console.log(user);
+        return res.status(200).json({ status: true, user });
+    } catch (e) {
+        console.log(e);
+        res.status(500).json({ status: false, msg: 'Something went wrong' });
+    }
 }
  
 module.exports.forgotPassword = async (req, res) => {

@@ -12,3 +12,10 @@ module.exports.isAuthor = async (req, res, next) => {
     }
     next();
 }
+
+module.exports.validCategory = (req, res, next) => {
+    const { category } = req.query;
+    if (!category)
+        return res.status(404).json({ status: false, msg: 'Provide a category' });
+    next();
+}

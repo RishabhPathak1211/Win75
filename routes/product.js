@@ -9,6 +9,8 @@ const upload = multer({ dest: 'uploads/' });
 
 router.post('/new', userMiddlewares.isLoggedIn, upload.array('images', 5), productFunctions.createProduct);
 
+router.get('/premium', productFunctions.premiumProducts);
+
 router.route('/:id')
     .get(productFunctions.viewProduct)
     .delete(userMiddlewares.isLoggedIn, productMiddlewares.isAuthor, productFunctions.deleteProduct);

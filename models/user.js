@@ -22,7 +22,13 @@ const UserSchema = new mongoose.Schema({
     referral: {
         type: String
     },
-    products: {
+    premium: Boolean,
+    myProducts: {
+        type: [mongoose.Schema.Types.ObjectId],
+        default: [],
+        ref: 'Product'
+    },
+    favProducts: {
         type: [mongoose.Schema.Types.ObjectId],
         default: [],
         ref: 'Product'
@@ -32,6 +38,7 @@ const UserSchema = new mongoose.Schema({
 UserSchema.statics.findAndValidate = async function(username, password) {
     const foundUser = await this.findOne({ username });
     if (foundUser) {
+        console.log('found a user');
         const isValid = await bcrypt.compare(password, foundUser.password);
         if (isValid) 
             return foundUser;
@@ -41,6 +48,9 @@ UserSchema.statics.findAndValidate = async function(username, password) {
 
 UserSchema.pre('save', async function (next) {
     try {
+        if (!this.isModified('password')) 
+            return next();
+
         this.password = await bcrypt.hash(this.password, 12);
         if (!this.referral) {
             let tmpReferral = crypto.randomBytes(10).toString('hex');
