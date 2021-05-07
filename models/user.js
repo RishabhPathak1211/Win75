@@ -22,7 +22,10 @@ const UserSchema = new mongoose.Schema({
     referral: {
         type: String
     },
-    premium: Boolean,
+    premium: {
+        type: Boolean,
+        default: false
+    },
     myProducts: {
         type: [mongoose.Schema.Types.ObjectId],
         default: [],

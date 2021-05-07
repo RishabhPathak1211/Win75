@@ -22,10 +22,7 @@ const ProductSchema = new mongoose.Schema({
         ref: 'User'
     },
     price: Number,
-    category: {
-        type: [String],
-        default: ['Books']
-    },
+    category: [String],
     genres: [String]
 });
 

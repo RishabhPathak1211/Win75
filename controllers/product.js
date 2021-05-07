@@ -3,13 +3,17 @@ const Product = require('../models/product');
 module.exports.premiumProducts = async (req, res) => {
     const { category } = req.query;
     try {
-        const products = Product.find({ category })
+        const products = await Product.find({ category })
                                 .populate({
                                     path: 'author',
-                                    match: { premium: true }
+                                    match: { 
+                                        premium: true,
+                                        // _id: { $ne: req.session.user_id }
+                                    }
                                  });
         return res.status(200).json({ status: true, products });
     } catch (e) {
+        console.log(e);
         return res.status(500).json({ 'status': false, 'msg': 'Something went wrong' });
     }
 }
