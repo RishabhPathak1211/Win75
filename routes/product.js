@@ -13,6 +13,7 @@ router.get('/premium', productFunctions.premiumProducts);
 
 router.route('/:id')
     .get(productFunctions.viewProduct)
+    .patch(userMiddlewares.isLoggedIn, productMiddlewares.isAuthor, productFunctions.updateProduct)
     .delete(userMiddlewares.isLoggedIn, productMiddlewares.isAuthor, productFunctions.deleteProduct);
 
 module.exports = router;

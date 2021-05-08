@@ -48,7 +48,17 @@ module.exports.viewProduct = async (req, res) => {
 }
 
 module.exports.updateProduct = async (req, res) => {
-
+    try {
+        const { id } = req.params;
+        const product = await Product.findByIdAndUpdate(id, { ...req.body }, { new: true });
+        if (!product) {
+            return res.status(404).json({ status: false, msg: 'Product not found' });
+        }
+        return res.status(200).json({ status: true, product });
+    } catch (e) {
+        console.log(e);
+        return res.status(500).json({ 'status': false, 'msg': 'Something went wrong' });
+    }
 }
 
 module.exports.deleteProduct = async (req, res) => {
