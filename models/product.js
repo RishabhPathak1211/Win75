@@ -37,7 +37,7 @@ ProductSchema.post('save', async function (doc) {
 ProductSchema.post('findOneAndDelete', async function (doc) {
     if (doc) {
         const user = await User.findById(doc.author);
-        const index = user.products.indexOf(doc._id);
+        const index = user.myProducts.indexOf(doc._id);
         if (index > -1)
             user.myProducts.splice(index, 1);
         await user.save();

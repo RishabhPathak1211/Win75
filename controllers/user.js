@@ -1,5 +1,5 @@
 const User = require('../models/user');
-
+const Product = require('../models/product');
 
 module.exports.sendOTP = (req, res) => {
     const otp = (Math.floor(100000 + Math.random() * 900000)).toString();
@@ -83,4 +83,35 @@ module.exports.forgotPassword = async (req, res) => {
         return res.send('User not found');
     foundUser.password = newpassword;
     await foundUser.save();
+}
+
+module.exports.addToFavs = async (req, res) => {
+    try {
+        const { productId } = req.query;
+        const user = await User.findById(req.session.user_id);
+        user.favProducts.push(productId);
+        await user.save();
+        return res.status(200).json({ status: true, msg: 'Product added to favourites' });
+    } catch (e) {
+        console.log(e);
+        return res.status(500).json({ status: false, msg: 'Something went wrong' });
+    }
+}
+
+module.exports.removeFromFavs = async (req, res) => {
+    try {
+        const { productId } = req.query;
+        const user = await User.findById(req.session.user_id);
+        const index = user.favProducts.indexOf(productId);
+        if (index > -1) {
+            user.favProducts.splice(index);
+            await user.save();
+            return res.status(200).json({ status: true, msg: 'Product removed from favourites' });
+        } else {
+            return res.status(404).json({ status: true, msg: 'Product not found in list' })
+        }
+    } catch (e) {
+        console.log(e);
+        return res.status(500).json({ status: false, msg: 'Something went wrong' });
+    }
 }

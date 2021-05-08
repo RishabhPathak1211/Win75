@@ -3,6 +3,7 @@ const router = express.Router();
 const userFunctions = require('../controllers/user');
 const catchAsync = require('../utils/catchAsync');
 const userMiddlewares = require('../utils/middlewares/user');
+const productMiddlewares = require('../utils/middlewares/product');
 
 router.post('/sendOTP', catchAsync(userMiddlewares.newUserValidity), userFunctions.sendOTP);
 
@@ -18,10 +19,11 @@ router.get('/logout', userMiddlewares.isLoggedIn, userFunctions.logout);
 
 router.get('/userData', userMiddlewares.isLoggedIn, userFunctions.userData);
 
-router.get('/sessionCheck', userFunctions.destroySession);
-
 // router.post('/passwordResetOTP', catchAsync(userMiddlewares.userExists), catchAsync(userFunctions.sendOTP));
 
 // router.post('/passwordReset', catchAsync(userFunctions.forgotPassword));
+
+router.get('/favourites/add', userMiddlewares.isLoggedIn, productMiddlewares.productExists, userFunctions.addToFavs);
+router.get('/favourites/remove', userMiddlewares.isLoggedIn, userFunctions.removeFromFavs);
 
 module.exports = router;
