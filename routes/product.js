@@ -11,6 +11,8 @@ router.post('/new', userMiddlewares.isLoggedIn, upload.array('images', 5), produ
 
 router.get('/premium', productFunctions.premiumProducts);
 
+router.get('/search', productFunctions.searchProducts);
+
 router.route('/:id')
     .get(productFunctions.viewProduct)
     .patch(userMiddlewares.isLoggedIn, productMiddlewares.isAuthor, productFunctions.updateProduct)

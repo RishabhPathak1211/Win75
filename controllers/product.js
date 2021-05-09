@@ -13,7 +13,6 @@ module.exports.premiumProducts = async (req, res, next) => {
                                         _id: { $ne: req.session.user_id }
                                     }
                                 });
-        err = err;
         products = products.filter(doc => doc.author !== null);
         return res.status(200).json({ status: true, products });
     } catch (e) {
@@ -72,11 +71,13 @@ module.exports.deleteProduct = async (req, res) => {
     }
 }
 
-module.exports.searchProducts = async (req, res) => {
+module.exports.searchProducts = async (req, res, next) => {
     try {
         const { category, q } = req.query;
-        
+        console.log(q);
+        const products = await Product.find({ $text: { $search: q } });
+        return res.status(200).json({ status: true, products });
     } catch (e) {
-
+        next(new ExpressError('Something went wrong', 500, e));
     }
 }

@@ -23,10 +23,24 @@ const ProductSchema = new mongoose.Schema({
     },
     price: Number,
     category: [String],
-    genres: [String]
+    tags: [String],
 });
 
-ProductSchema.index({ title: 'text', description: 'text' });
+ProductSchema.index(
+    {
+        title: "text",
+        description: "text",
+        tags: "text"
+    }, 
+    {
+        weights: {
+            title: 10,
+            description:5,
+            tags: 8
+        },
+        name: 'search'
+    }
+);
 
 ProductSchema.post('save', async function (doc) {
     if (doc) {
