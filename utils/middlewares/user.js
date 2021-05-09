@@ -1,58 +1,61 @@
 const User = require('../../models/user');
+const ExpressError = require('../ExpressError');
 
 module.exports.isLoggedIn = (req, res, next) => {
-    console.log(req.session);
     if (!req.session.user_id) {
-        console.log('not logged in');
-        return res.status(403).json({ 'status': false, 'msg': 'Not logged in' });
+        return next(new ExpressError('Not logged in', 403));
     }
     next();
 }
 
 module.exports.newUserValidity = async (req, res, next) => {
     const { username, phone, password, referral } = req.body;
-    console.log('middleware form data:');
-    console.log({ username, phone, password });
-    const user = await User.findOne({
-        $or: [
-            { username },
-            { phone }
-        ]
-    })
-    if (user) {
-        return res.status(403).json({ 'status': false, 'msg': 'User already exists' });
-    }
-
-    if (referral) {
-        const refUser = await User.findOne({ referral });
-        if (!refUser) {
-            return res.status(403).json({ 'status': false, 'msg': 'Invalid referral code' });
+    try {
+        const user = await User.findOne({
+            $or: [
+                { username },
+                { phone }
+            ]
+        });
+    
+        if (user) {
+            return next(new ExpressError('User already exists', 403));
         }
-        req.session.refUser = refUser;
+
+        if (referral) {
+            const refUser = await User.findOne({ referral });
+            if (!refUser) {
+                return next(new ExpressError('Invalid referral code', 404));
+            }
+            req.session.refUser = refUser;
+        }
+
+        req.session.username = username;
+        req.session.phone = phone;
+        req.session.password = password;
+
+        return next();
+    } catch (e) {
+        next(new ExpressError('Something went wrong', 500));
     }
-
-    req.session.username = username;
-    req.session.phone = phone;
-    req.session.password = password;
-
-    console.log('session after middleware completion:');
-    console.log(req.session);
-
-    next();
 }
 
-module.exports.userExists = async (req, res, next) => {
-    const { username, phone } = req.body;
-    const user = await User.findOne({
-        $and: [
-            { username },
-            { phone }
-        ]
-    });
-    if (!user) {
-        return res.status(403).json({ 'status': false, 'msg': 'Credential mismatch' });
-    }
+// module.exports.userExists = async (req, res, next) => {
+//     try {
+//         const { username, phone } = req.body;
+//         const user = await User.findOne({
+//             $and: [
+//                 { username },
+//                 { phone }
+//             ]
+//         });
+//         if (!user) {
+//             return next(new ExpressError('Credential mismatch', 403));
+//         }
 
-    req.session.username = username;
-    next();
-}
+//         req.session.username = username;
+//         next();
+//     } catch (e) {
+
+//     }
+// }

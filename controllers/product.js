@@ -1,6 +1,8 @@
 const Product = require('../models/product');
+const ExpressError = require('../utils/ExpressError');
+const mongoose = require('mongoose');
 
-module.exports.premiumProducts = async (req, res) => {
+module.exports.premiumProducts = async (req, res, next) => {
     const { category } = req.query;
     try {
         let products = await Product.find({ category })
@@ -11,15 +13,15 @@ module.exports.premiumProducts = async (req, res) => {
                                         _id: { $ne: req.session.user_id }
                                     }
                                 });
+        err = err;
         products = products.filter(doc => doc.author !== null);
         return res.status(200).json({ status: true, products });
     } catch (e) {
-        console.log(e);
-        return res.status(500).json({ 'status': false, 'msg': 'Something went wrong' });
+        next(new ExpressError('Something went wrong', 500, e));
     }
 }
 
-module.exports.createProduct = async (req, res) => {
+module.exports.createProduct = async (req, res, next) => {
     try {
         const product = new Product(req.body);
         if (req.files)
@@ -28,36 +30,35 @@ module.exports.createProduct = async (req, res) => {
         await product.save();
         return res.status(200).json({ 'status': true, 'msg': 'Product created successfully' });
     } catch (e) {
-        console.log(e);
-        return res.status(500).json({ 'status': false, 'msg': 'Something went wrong' });
+        next(new ExpressError('Something went wrong', 500, e));
     }
 };
 
-module.exports.viewProduct = async (req, res) => {
+module.exports.viewProduct = async (req, res, next) => {
     try {
         const { id } = req.params;
         const product = await Product.findById(id).populate('author');
         if (product) {
             return res.status(200).json({ 'status': true, product });
         }
-        return res.status(404).json({ 'status': false, 'msg': 'Page not found' });
+        return next(new ExpressError('Product not found', 404));
     } catch (e) {
-        console.log(e);
-        return res.status(500).json({ 'status': false, 'msg': 'Something went wrong' });
+        if (e.message.indexOf('Cast to ObjectId') !== -1)
+            return next(new ExpressError('Invalid product ID', 404))
+        next(new ExpressError('Something went wrong', 500, e));
     }
 }
 
-module.exports.updateProduct = async (req, res) => {
+module.exports.updateProduct = async (req, res, next) => {
     try {
         const { id } = req.params;
         const product = await Product.findByIdAndUpdate(id, { ...req.body }, { new: true });
         if (!product) {
-            return res.status(404).json({ status: false, msg: 'Product not found' });
+            return next(new ExpressError('Product not found', 404));
         }
         return res.status(200).json({ status: true, product });
     } catch (e) {
-        console.log(e);
-        return res.status(500).json({ 'status': false, 'msg': 'Something went wrong' });
+        next(new ExpressError('Something went wrong', 500, e));
     }
 }
 
@@ -67,7 +68,15 @@ module.exports.deleteProduct = async (req, res) => {
         await Product.findByIdAndDelete(id);
         return res.status(200).json({ 'status': true, 'msg': 'Product deleted successfully' });
     } catch (e) {
-        console.log(e);
-        return res.status(500).json({ 'status': false, 'msg': 'Something went wrong' });
+        next(new ExpressError('Something went wrong', 500, e));
+    }
+}
+
+module.exports.searchProducts = async (req, res) => {
+    try {
+        const { category, q } = req.query;
+        
+    } catch (e) {
+
     }
 }

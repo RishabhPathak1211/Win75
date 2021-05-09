@@ -1,4 +1,5 @@
 const Product = require('../../models/product');
+const ExpressError = require('../ExpressError');
 
 module.exports.isAuthor = async (req, res, next) => {
     try {
@@ -9,19 +10,19 @@ module.exports.isAuthor = async (req, res, next) => {
                 return res.status(403).json({ 'status': false, 'msg': 'You are not authorized to do that' });
             }
         } else {
-            return res.status(404).json({ 'status': false, 'msg': 'Page/Product not found' });
+            return next(new ExpressError('Product not found', 404));
         }
-        next();
+        return next();
     } catch (e) {
         console.log(e);
-        return res.status(500).json({ status: false, msg: 'Something went wrong' });
+        next(new ExpressError('Something went wrong', 500, e));
     }
 }
 
 module.exports.validCategory = (req, res, next) => {
     const { category } = req.query;
     if (!category)
-        return res.status(404).json({ status: false, msg: 'Provide a category' });
+        return next(new ExpressError('Provide a valid category', 404));
     next();
 }
 
@@ -33,10 +34,10 @@ module.exports.productExists = async (req, res, next) => {
         console.log(product);
         if (product) return next();
         else {
-            return res.status(404).json({ status: false, msg: 'Product not found' });
+            return next(new ExpressError('Product not found', 404));
         }
     } catch (e) {
         console.log(e);
-        return res.status(500).json({ status: false, msg: 'Something went wrong' });
+        next(new ExpressError('Something went wrong', 500, e));
     }
 }

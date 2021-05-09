@@ -16,4 +16,6 @@ router.route('/:id')
     .patch(userMiddlewares.isLoggedIn, productMiddlewares.isAuthor, productFunctions.updateProduct)
     .delete(userMiddlewares.isLoggedIn, productMiddlewares.isAuthor, productFunctions.deleteProduct);
 
+// router.get('/delete/:id', userMiddlewares.isLoggedIn, productMiddlewares.isAuthor, productFunctions.deleteProduct);
+
 module.exports = router;

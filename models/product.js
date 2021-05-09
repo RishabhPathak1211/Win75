@@ -26,6 +26,8 @@ const ProductSchema = new mongoose.Schema({
     genres: [String]
 });
 
+ProductSchema.index({ title: 'text', description: 'text' });
+
 ProductSchema.post('save', async function (doc) {
     if (doc) {
         const user = await User.findById(doc.author);

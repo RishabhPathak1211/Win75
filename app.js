@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const path = require('path');
 const session = require('express-session');
 const MongoDBStore = require('connect-mongo');
+const mongoSanitize = require('express-mongo-sanitize');
 const userRoutes = require('./routes/user');
 const productRoutes = require('./routes/product');
 
@@ -35,9 +36,18 @@ app.use(session({
         httpOnly: true,
     }
 }));
+app.use(mongoSanitize({
+    replaceWith: '_'
+}));
 
 app.use('/user', userRoutes);
 app.use('/product', productRoutes);
+
+app.use((err, req, res, next) => {
+    const { statusCode, message, stack } = err;
+    console.log('Error: ' + stack);
+    res.status(statusCode).json({ status: false, msg: message });
+});
 
 // app.use('/', (req, res) => {
 //     // console.log(req.headers);
