@@ -11,6 +11,8 @@ router.get('/resendOTP', userFunctions.sendOTP);
 router.route('/register')
     .post(userFunctions.register);
 
+router.get('/cancelRegistration', (req, res) => { req.session.destroy() });
+
 router.route('/login')
     .post(userFunctions.login);
 

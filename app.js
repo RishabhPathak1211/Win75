@@ -1,11 +1,12 @@
 const express = require('express');
+const http = require('http');
 const mongoose = require('mongoose');
-const path = require('path');
 const session = require('express-session');
 const MongoDBStore = require('connect-mongo');
 const mongoSanitize = require('express-mongo-sanitize');
 const userRoutes = require('./routes/user');
 const productRoutes = require('./routes/product');
+const chatroomRoutes = require('./routes/chatroom');
 
 const dbUrl = process.env.DB_URL;
 
@@ -19,6 +20,7 @@ mongoose.connect(dbUrl, {
 const db = mongoose.connection;
 
 const app = express();
+const httpServer = http.createServer(app);
 
 app.use('/healthCheck', (req, res) => {
     res.status('OK');
@@ -31,7 +33,7 @@ app.use(session({
     name: 'session',
     secret: process.env.SECRET,
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     cookie: {
         httpOnly: true,
     }
@@ -42,6 +44,10 @@ app.use(mongoSanitize({
 
 app.use('/user', userRoutes);
 app.use('/product', productRoutes);
+app.use('/chatroom', chatroomRoutes);
+app.get('/', (req, res) => {
+    res.status(200).send('OK');
+})
 
 app.use((err, req, res, next) => {
     const { statusCode, message, stack } = err;
@@ -59,4 +65,4 @@ app.use((err, req, res, next) => {
 //     res.send(req.headers);
 // })
 
-module.exports = { app, db };
+module.exports = { httpServer, db };

@@ -19,9 +19,7 @@ const UserSchema = new mongoose.Schema({
         type: Number,
         default: 500
     },
-    referral: {
-        type: String
-    },
+    referral: String,
     premium: {
         type: Boolean,
         default: false
