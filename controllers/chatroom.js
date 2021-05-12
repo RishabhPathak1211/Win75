@@ -44,6 +44,7 @@ module.exports.getMessages = async (req, res, next) => {
 module.exports.sendMessage = async (req, res, next) => {
     try {
         const { receiver, content } = req.body;
+        console.log(req.body);
         if (!receiver)
             return next(new ExpressError('Please provide receiver ID', 404));
         if (!content)

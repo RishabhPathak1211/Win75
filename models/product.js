@@ -1,8 +1,5 @@
 const mongoose = require('mongoose');
-const moment = require('moment-timezone');
 const User = require('./user');
-
-const dateIndia = moment.tz(Date.now(), 'Asia/Kolkata');
 
 const ImageSchema = new mongoose.Schema({
     url: String,
@@ -24,14 +21,14 @@ const ProductSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     },
-    advertisment: {
+    advertisement: {
         type: Number,
         enum: [0, 1, 2],
         default: 0
     },
     created: {
         type: Date,
-        default: dateIndia
+        default: Date.now
     },
     price: Number,
     category: String,

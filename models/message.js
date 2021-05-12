@@ -22,16 +22,21 @@ const MessageSchema = new mongoose.Schema({
 });
 
 MessageSchema.pre('save', function (next) {
-    if (!this.isModified('content')) return next();
-    const encrypted = encrypt(this.content);
-    this.iv = encrypted.iv;
-    this.content = encrypted.content;
+    try {
+        if (!this.isModified('content')) return next();
+        const encrypted = encrypt(this.content);
+        this.iv = encrypted.iv;
+        this.content = encrypted.content;
+        return next();
+    } catch (e) {
+        next(e);
+    }
 });
 
 MessageSchema.statics.findAndDecrypt = async function (user1, user2) {
     const messageList = await this.find({ $or: [
                                             { sender: user1, receiver: user2 },
-                                            { sender: user1, receiver: user2 }
+                                            { sender: user2, receiver: user1 }
                                         ] }).sort({ timestamp: 'asc' });
 
     const messages = messageList.map((doc) => {

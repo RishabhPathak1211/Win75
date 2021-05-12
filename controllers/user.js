@@ -55,15 +55,43 @@ module.exports.logout = (req, res) => {
     res.status(200).json({ 'status': true, 'msg': 'Logged out' });
 }
 
-module.exports.userData = async (req, res) => {
+module.exports.userData = async (req, res, next) => {
     try {
-        const user = await User.findById(req.session.user_id).populate('myProducts').populate('favProducts');
+        const user = await User.findById(req.session.user_id)
+                                .select('-myProducts -favProducts -password');
         return res.status(200).json({ status: true, user });
     } catch (e) {
-        console.log(e);
         next(new ExpressError('Something went wrong', 500, e));
     }
 }
+
+module.exports.userProducts = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.session.user_id)
+                                        .select('myProducts')
+                                        .populate('myProducts', '-advertisement');
+        return res.status(200).json({ status: true, myProducts: user.myProducts });
+    } catch (e) {
+        next(new ExpressError('Something went wrong', 500, e));
+    }
+}
+
+module.exports.userWishlist = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.session.user_id)
+                                        .select('favProducts')
+                                        .populate('favProducts', '-advertisement');
+        return res.status(200).json({ status: true, favProducts: user.favProducts });
+    } catch (e) {
+        next(new ExpressError('Something went wrong', 500, e));
+    }
+}
+
+// module.exports.userWishlist = async (req, res, next) => {
+//     try {
+
+//     }
+// }
  
 // module.exports.forgotPassword = async (req, res) => {
 //     const { newpassword } = req.body;
@@ -74,7 +102,7 @@ module.exports.userData = async (req, res) => {
 //     await foundUser.save();
 // }
 
-module.exports.addToFavs = async (req, res) => {
+module.exports.addToFavs = async (req, res, next) => {
     try {
         const { productId } = req.query;
         const user = await User.findById(req.session.user_id);
@@ -87,7 +115,7 @@ module.exports.addToFavs = async (req, res) => {
     }
 }
 
-module.exports.removeFromFavs = async (req, res) => {
+module.exports.removeFromFavs = async (req, res, next) => {
     try {
         const { productId } = req.query;
         const user = await User.findById(req.session.user_id);

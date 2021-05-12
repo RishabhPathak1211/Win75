@@ -2,6 +2,18 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 
+const ActivitySchema = new mongoose.Schema({
+    product: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Product'
+    },
+    registered: {
+        type: Date,
+        ref: Date.now
+    },
+    
+})
+
 const UserSchema = new mongoose.Schema({
     username: {
         type: String,
@@ -15,6 +27,8 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Password cannot be blank']
     },
+    imageUrl: String,
+    email: String,
     wallet: {
         type: Number,
         default: 500
@@ -33,6 +47,9 @@ const UserSchema = new mongoose.Schema({
         type: [mongoose.Schema.Types.ObjectId],
         default: [],
         ref: 'Product'
+    },
+    activityLog: {
+
     }
 });
 

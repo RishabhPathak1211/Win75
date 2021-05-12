@@ -1,9 +1,11 @@
-const { http } = require('../app');
-const io = require('socket.io')(http);
+const { httpServer } = require('../app');
+const io = require('socket.io')(httpServer);
 
 const webSocket = () => {
     io.on('connection', socket => {
+        console.log('Entered connection');
         //Get the chatID of the user and join in a room of the same chatID
+        console.log(socket.handshake.query);
         chatID = socket.handshake.query.chatID;
         socket.join(chatID);
         console.log(`${chatID} connected`);
