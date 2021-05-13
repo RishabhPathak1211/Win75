@@ -14,7 +14,6 @@ module.exports.isAuthor = async (req, res, next) => {
         }
         return next();
     } catch (e) {
-        console.log(e);
         next(new ExpressError('Something went wrong', 500, e));
     }
 }
@@ -29,15 +28,12 @@ module.exports.validCategory = (req, res, next) => {
 module.exports.productExists = async (req, res, next) => {
     try {
         const { productId } = req.query;
-        console.log(productId);
         const product = await Product.findById(productId);
-        console.log(product);
         if (product) return next();
         else {
             return next(new ExpressError('Product not found', 404));
         }
     } catch (e) {
-        console.log(e);
         next(new ExpressError('Something went wrong', 500, e));
     }
 }

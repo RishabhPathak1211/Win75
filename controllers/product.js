@@ -1,6 +1,5 @@
 const Product = require('../models/product');
 const ExpressError = require('../utils/ExpressError');
-const mongoose = require('mongoose');
 
 module.exports.premiumProducts = async (req, res, next) => {
     const { category } = req.query;

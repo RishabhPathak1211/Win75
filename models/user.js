@@ -7,11 +7,14 @@ const ActivitySchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Product'
     },
-    registered: {
+    registeredOn: {
         type: Date,
-        ref: Date.now
+        default: Date.now
     },
-    
+    activityType: {
+        type: String,
+        enum: ['Created', 'Updated', 'Added to wishlist', 'Removed from wishlist']
+    }
 })
 
 const UserSchema = new mongoose.Schema({
@@ -49,7 +52,8 @@ const UserSchema = new mongoose.Schema({
         ref: 'Product'
     },
     activityLog: {
-
+        type: [ActivitySchema],
+        default: []
     }
 });
 

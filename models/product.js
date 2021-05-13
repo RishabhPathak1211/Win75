@@ -30,8 +30,14 @@ const ProductSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
-    price: Number,
-    category: String,
+    price: {
+        type: Number,
+        required: true
+    },
+    category: {
+        type: String,
+        required: true
+    },
     tags: [String],
 });
 
@@ -55,9 +61,18 @@ ProductSchema.post('save', async function (doc) {
     if (doc) {
         const user = await User.findById(doc.author);
         user.myProducts.push(doc._id);
+        user.activityLog.push({ product: doc._id, activityType: 'Created' });
         await user.save();
     }
-})
+});
+
+ProductSchema.post('findOneAndUpdate', async function (doc) {
+    if (doc) {
+        const user = await User.findById(doc.author);
+        user.activityLog.push({ product: doc._id, activityType: 'Updated' });
+        await user.save();
+    }
+});
 
 ProductSchema.post('findOneAndDelete', async function (doc) {
     if (doc) {

@@ -18,9 +18,13 @@ router.route('/login')
 
 router.get('/logout', userMiddlewares.isLoggedIn, userFunctions.logout);
 
-router.get('/userData', userMiddlewares.isLoggedIn, userFunctions.userData);
+router.route('/userData')
+    .get(userMiddlewares.isLoggedIn, userFunctions.userData)
+    .patch(userMiddlewares.isLoggedIn, userFunctions.updateProfile);
+    
 router.get('/myProducts', userMiddlewares.isLoggedIn, userFunctions.userProducts);
 router.get('/wishlist', userMiddlewares.isLoggedIn, userFunctions.userWishlist);
+router.get('/activityLog', userMiddlewares.isLoggedIn, userFunctions.userActivity);
 
 // router.post('/passwordResetOTP', catchAsync(userMiddlewares.userExists), catchAsync(userFunctions.sendOTP));
 

@@ -55,6 +55,29 @@ module.exports.logout = (req, res) => {
     res.status(200).json({ 'status': true, 'msg': 'Logged out' });
 }
 
+module.exports.updateProfile = async (req, res, next) => {
+    try {
+        const { email, imageUrl, password } = req.body
+
+        if (password) {
+            const user = await User.findById(req.session.user_id);
+            user.password = password;
+            await user.save();
+            return res.status(200).json({ status: 'ok' });
+        } else if (email) {
+            const user = await User.findByIdAndUpdate(req.session.user_id, { email }, { new: true });
+            return res.status(200).json({ status: 'ok', user });
+        } else if (imageUrl) {
+            const user = await User.findByIdAndUpdate(req.session.user_id, { imageUrl }, { new: true });
+            return res.status(200).json({ status: 'ok', user });
+        }
+        
+        return next(new ExpressError('Provide a field', 403));
+    } catch(e) {
+        next(new ExpressError('Something went wrong', 500, e));
+    }
+}
+
 module.exports.userData = async (req, res, next) => {
     try {
         const user = await User.findById(req.session.user_id)
@@ -87,11 +110,16 @@ module.exports.userWishlist = async (req, res, next) => {
     }
 }
 
-// module.exports.userWishlist = async (req, res, next) => {
-//     try {
-
-//     }
-// }
+module.exports.userActivity = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.session.user_id)
+                                .select('activityLog')
+                                .populate('activityLog.product');
+        return res.status(200).json({ status: true, activityLog: user.activityLog });
+    } catch (e) {
+        next(new ExpressError('Something went wrong', 500, e));
+    }
+}
  
 // module.exports.forgotPassword = async (req, res) => {
 //     const { newpassword } = req.body;
@@ -107,10 +135,10 @@ module.exports.addToFavs = async (req, res, next) => {
         const { productId } = req.query;
         const user = await User.findById(req.session.user_id);
         user.favProducts.push(productId);
+        user.activityLog.push({ product: productId, activityType: 'Added to wishlist' });
         await user.save();
         return res.status(200).json({ status: true, msg: 'Product added to favourites' });
     } catch (e) {
-        console.log(e);
         next(new ExpressError('Something went wrong', 500, e));
     }
 }
@@ -122,13 +150,13 @@ module.exports.removeFromFavs = async (req, res, next) => {
         const index = user.favProducts.indexOf(productId);
         if (index > -1) {
             user.favProducts.splice(index);
+            user.activityLog.push({ product: productId, activityType: 'Removed from wishlist' });
             await user.save();
             return res.status(200).json({ status: true, msg: 'Product removed from favourites' });
         } else {
             return next(new ExpressError('Product not found in list', 403));
         }
     } catch (e) {
-        console.log(e);
         next(new ExpressError('Something went wrong', 500, e));
     }
 }
