@@ -70,12 +70,29 @@ module.exports.deleteProduct = async (req, res) => {
     }
 }
 
+module.exports.homeProducts = async (req, res, next) => {
+    try {
+        const carouselProds = await Product.find({ advertisement: 2 });
+        const gridProds = await Product.find({ advertisement: { $ne: 2 } })
+                                        .sort({ advertisement: -1, created: 1 });
+        return res.status(200).json({ status: 'ok', carouselProds, gridProds });
+    } catch (e) {
+        next(new ExpressError('Something went wrong', 500, e));
+    }
+}
+
 module.exports.searchProducts = async (req, res, next) => {
     try {
         const { category, q } = req.query;
-        console.log(q);
-        const products = await Product.find({ $text: { $search: q } });
-        return res.status(200).json({ status: true, products });
+        if (!category) return next(new ExpressError('Provide a category', 404));
+        if (!q) {
+            const products = await Product.find({ category, advertisement: { $ne: 2 } })
+                                            .sort({ advertisement: -1, created: -1 });
+            return res.status(200).json({ status: true, products });
+        } else {
+            const products = await Product.find({ category, $text: { $search: q } });
+            return res.status(200).json({ status: true, products });
+        }
     } catch (e) {
         next(new ExpressError('Something went wrong', 500, e));
     }

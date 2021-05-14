@@ -31,7 +31,10 @@ const UserSchema = new mongoose.Schema({
         required: [true, 'Password cannot be blank']
     },
     imageUrl: String,
-    email: String,
+    email: {
+        type: String,
+        default: ''
+    },
     wallet: {
         type: Number,
         default: 500
