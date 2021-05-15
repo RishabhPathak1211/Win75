@@ -8,19 +8,17 @@ const { storage } = require('../utils/cloudinary');
 
 const upload = multer({ storage });
 
-router.post('/sendOTP', userMiddlewares.newUserValidity, userFunctions.sendOTP);
+// router.post('/sendOTP', userMiddlewares.newUserValidity, userFunctions.sendOTP);
+// router.get('/resendOTP', userFunctions.sendOTP);
+// router.post('/passwordResetOTP', userMiddlewares.userExists, userFunctions.sendOTP);
+router.get('/validity', userMiddlewares.newUserValidity);
+router.get('/exists', userMiddlewares.userExists);
 
-router.get('/resendOTP', userFunctions.sendOTP);
-
-router.route('/register')
-    .post(userFunctions.register);
-
+router.post('/register', userFunctions.register);
 router.get('/cancelRegistration', (req, res) => { req.session.destroy() });
-
-router.route('/login')
-    .post(userFunctions.login);
-
+router.post('/login', userFunctions.login);
 router.get('/logout', userMiddlewares.isLoggedIn, userFunctions.logout);
+router.patch('/passwordReset', userFunctions.resetPassword);
 
 router.route('/userData')
     .get(userMiddlewares.isLoggedIn, userFunctions.userData)
@@ -29,10 +27,6 @@ router.route('/userData')
 router.get('/myProducts', userMiddlewares.isLoggedIn, userFunctions.userProducts);
 router.get('/wishlist', userMiddlewares.isLoggedIn, userFunctions.userWishlist);
 router.get('/activityLog', userMiddlewares.isLoggedIn, userFunctions.userActivity);
-
-// router.post('/passwordResetOTP', catchAsync(userMiddlewares.userExists), catchAsync(userFunctions.sendOTP));
-
-// router.post('/passwordReset', catchAsync(userFunctions.forgotPassword));
 
 router.get('/favourites/add', userMiddlewares.isLoggedIn, productMiddlewares.productExists, userFunctions.addToFavs);
 router.get('/favourites/remove', userMiddlewares.isLoggedIn, userFunctions.removeFromFavs);

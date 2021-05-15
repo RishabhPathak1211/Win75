@@ -11,26 +11,18 @@ module.exports.sendOTP = (req, res) => {
 
 module.exports.register = async (req, res, next) => {
     try {
-        const { otp } = req.body;
+        // const { otp } = req.body;
         const { username, phone, password, referral } = req.session;
-
-        if (otp === req.session.otp) {
-            if (referral) {
-                const refUser = await User.findOne({ referral });
-                //  refUser benefiys goes here
-            }
-
-            const newUser = new User({ username, phone, password });
-            await newUser.save();
-
-            delete req.session.username;
-            delete req.session.phone;
-            delete req.session.password;
-            delete req.session.otp;
-
-            req.session.user_id = newUser._id;
-            return res.status(200).json({ 'status': true, 'msg': 'Registration Succesful' });
+        // if (otp === req.session.otp) {
+        if (referral) {
+            await User.findOneAndUpdate({ referral }, { $inc: { wallet: 50 } }, { new: true });
+            //  refUser benefiys goes here
         }
+        const newUser = new User({ username, phone, password });
+        await newUser.save();
+        req.session.user_id = newUser._id;
+        return res.status(200).json({ 'status': true, 'msg': 'Registration Succesful' });
+        // }
         return next(new ExpressError('OTP Mismatch', 403));
     } catch (e) {
         next(new ExpressError('Something went wrong', 500, e));
@@ -56,9 +48,22 @@ module.exports.logout = (req, res) => {
     res.status(200).json({ 'status': true, 'msg': 'Logged out' });
 }
 
+module.exports.resetPassword = async (req, res, next) => {
+    try {
+        const { password, phone } = req.body;
+        const user = await User.findOne({ phone });
+        if (!user) return next(new ExpressError('User not found', 403));
+        user.password = password;
+        await user.save();
+        return res.status(200).json({ status: 'ok', msg: 'Password reset successful' });
+    } catch (e) {
+        next(new ExpressError('Something went wrong', 500, e));
+    }
+}
+
 module.exports.updateProfile = async (req, res, next) => {
     try {
-        const { email } = req.body
+        const { email } = req.body;
         if (email) {
             const user = await User.findByIdAndUpdate(req.session.user_id, { email }, { new: true });
             return res.status(200).json({ status: 'ok', user });

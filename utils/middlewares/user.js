@@ -30,32 +30,32 @@ module.exports.newUserValidity = async (req, res, next) => {
             req.session.refUser = refUser;
         }
 
-        req.session.username = username;
-        req.session.phone = phone;
-        req.session.password = password;
+        return res.status(200).json({ status: 'ok' });
+        // req.session.username = username;
+        // req.session.phone = phone;
+        // req.session.password = password;
 
-        return next();
+        // return next();
     } catch (e) {
         next(new ExpressError('Something went wrong', 500));
     }
 }
 
-// module.exports.userExists = async (req, res, next) => {
-//     try {
-//         const { username, phone } = req.body;
-//         const user = await User.findOne({
-//             $and: [
-//                 { username },
-//                 { phone }
-//             ]
-//         });
-//         if (!user) {
-//             return next(new ExpressError('Credential mismatch', 403));
-//         }
-
-//         req.session.username = username;
-//         next();
-//     } catch (e) {
-
-//     }
-// }
+module.exports.userExists = async (req, res, next) => {
+    try {
+        const { username, phone } = req.body;
+        const user = await User.findOne({
+            $and: [
+                { username },
+                { phone }
+            ]
+        });
+        if (!user) {
+            return next(new ExpressError('User not found', 403));
+        }
+        // req.session.user_id = user._id;
+        return res.status(200).json({ status: 'ok' });
+    } catch (e) {
+        next(new ExpressError('Something went wrong', 500, e));
+    }
+}
