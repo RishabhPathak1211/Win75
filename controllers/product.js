@@ -22,13 +22,10 @@ module.exports.premiumProducts = async (req, res, next) => {
 module.exports.createProduct = async (req, res, next) => {
     try {
         const product = new Product(req.body);
-        if (req.files) {
-            console.log(req.files);
-            product.imgs = req.files.map(f => ({ url: f.path, filename: f.filename }));
-        }
+        product.imgs = req.files.map(f => ({ url: f.path, filename: f.filename }));
         product.author = req.session.user_id;
         await product.save();
-        return res.status(200).json({ 'status': true, 'msg': 'Product created successfully' });
+        return res.status(200).json({ 'status': true, product });
     } catch (e) {
         next(new ExpressError('Something went wrong', 500, e));
     }

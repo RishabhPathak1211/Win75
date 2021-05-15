@@ -15,7 +15,12 @@ const ActivitySchema = new mongoose.Schema({
         type: String,
         enum: ['Created', 'Updated', 'Added to wishlist', 'Removed from wishlist']
     }
-})
+});
+
+const ImageSchema = new mongoose.Schema({
+    url: String,
+    filename: String
+});
 
 const UserSchema = new mongoose.Schema({
     username: {
@@ -30,7 +35,10 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Password cannot be blank']
     },
-    imageUrl: String,
+    profileImg: {
+        type: ImageSchema,
+        default: null
+    },
     email: {
         type: String,
         default: ''
@@ -58,7 +66,7 @@ const UserSchema = new mongoose.Schema({
         type: [ActivitySchema],
         default: []
     }
-});
+}, { versionKey: false });
 
 UserSchema.statics.findAndValidate = async function(username, password) {
     const foundUser = await this.findOne({ username });

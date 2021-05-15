@@ -10,7 +10,7 @@ const ChatroomSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Message'
     }
-});
+}, { versionKey: false });
 
 function size (val) {
     return val.length === 2;

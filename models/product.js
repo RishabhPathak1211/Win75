@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const { cloudinary } = require('../utils/cloudinary');
+const ExpressError = require('../utils/ExpressError');
 const User = require('./user');
 
 const ImageSchema = new mongoose.Schema({
@@ -11,8 +13,10 @@ const ProductSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Title is required']
     },
-    imgs: [ImageSchema],
-    imageUrl: String,
+    imgs: {
+        type: [ImageSchema],
+        defaule: []
+    },
     description: {
         type: String,
         required: [true, 'Description is required']
@@ -39,7 +43,7 @@ const ProductSchema = new mongoose.Schema({
         required: true
     },
     tags: [String],
-});
+}, { versionKey: false });
 
 ProductSchema.index(
     {
@@ -57,12 +61,15 @@ ProductSchema.index(
     }
 );
 
-ProductSchema.post('save', async function (doc) {
-    if (doc) {
-        const user = await User.findById(doc.author);
-        user.myProducts.push(doc._id);
-        user.activityLog.push({ product: doc._id, activityType: 'Created' });
+ProductSchema.pre('save', async function (next) {
+    try {
+        const user = await User.findById(this.author);
+        user.myProducts.push(this._id);
+        user.activityLog.push({ product: this._id, activityType: 'Created' });
         await user.save();
+        next();
+    } catch (e) {
+        next(new ExpressError('Something went wrong', 500, e));
     }
 });
 
@@ -76,6 +83,7 @@ ProductSchema.post('findOneAndUpdate', async function (doc) {
 
 ProductSchema.post('findOneAndDelete', async function (doc) {
     if (doc) {
+        for (let img of doc.imgs) await cloudinary.uploader.destroy(img.filename);
         const user = await User.findById(doc.author);
         const index = user.myProducts.indexOf(doc._id);
         if (index > -1)

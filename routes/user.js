@@ -3,6 +3,10 @@ const router = express.Router();
 const userFunctions = require('../controllers/user');
 const userMiddlewares = require('../utils/middlewares/user');
 const productMiddlewares = require('../utils/middlewares/product');
+const multer = require('multer');
+const { storage } = require('../utils/cloudinary');
+
+const upload = multer({ storage });
 
 router.post('/sendOTP', userMiddlewares.newUserValidity, userFunctions.sendOTP);
 
@@ -20,7 +24,7 @@ router.get('/logout', userMiddlewares.isLoggedIn, userFunctions.logout);
 
 router.route('/userData')
     .get(userMiddlewares.isLoggedIn, userFunctions.userData)
-    .patch(userMiddlewares.isLoggedIn, userFunctions.updateProfile);
+    .patch(userMiddlewares.isLoggedIn, upload.single('profileImg'), userFunctions.updateProfile);
     
 router.get('/myProducts', userMiddlewares.isLoggedIn, userFunctions.userProducts);
 router.get('/wishlist', userMiddlewares.isLoggedIn, userFunctions.userWishlist);

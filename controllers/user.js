@@ -1,6 +1,7 @@
 const User = require('../models/user');
 const Product = require('../models/product');
 const ExpressError = require('../utils/ExpressError');
+const { cloudinary } = require('../utils/cloudinary');
 
 module.exports.sendOTP = (req, res) => {
     const otp = (Math.floor(100000 + Math.random() * 900000)).toString();
@@ -57,18 +58,19 @@ module.exports.logout = (req, res) => {
 
 module.exports.updateProfile = async (req, res, next) => {
     try {
-        const { email, imageUrl, password } = req.body
-
-        if (password) {
-            const user = await User.findById(req.session.user_id);
-            user.password = password;
-            await user.save();
-            return res.status(200).json({ status: 'ok' });
-        } else if (email) {
+        const { email } = req.body
+        if (email) {
             const user = await User.findByIdAndUpdate(req.session.user_id, { email }, { new: true });
             return res.status(200).json({ status: 'ok', user });
-        } else if (imageUrl) {
-            const user = await User.findByIdAndUpdate(req.session.user_id, { imageUrl }, { new: true });
+        } else if (req.file) {
+            const { profileImg } = await User.findById(req.session.user_id)
+                                                .select('profileImg');
+            if (profileImg) await cloudinary.uploader.destroy(profileImg.filename);
+            const user = await User.findByIdAndUpdate(req.session.user_id, { 
+                                                                profileImg: { 
+                                                                    url: req.file.path, filename: req.file.filename 
+                                                                } 
+                                                            }, { new: true });
             return res.status(200).json({ status: 'ok', user });
         }
         

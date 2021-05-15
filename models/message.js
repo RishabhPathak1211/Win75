@@ -19,7 +19,7 @@ const MessageSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     }
-});
+}, { versionKey: false });
 
 MessageSchema.pre('save', function (next) {
     try {
