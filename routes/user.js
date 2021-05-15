@@ -11,8 +11,8 @@ const upload = multer({ storage });
 // router.post('/sendOTP', userMiddlewares.newUserValidity, userFunctions.sendOTP);
 // router.get('/resendOTP', userFunctions.sendOTP);
 // router.post('/passwordResetOTP', userMiddlewares.userExists, userFunctions.sendOTP);
-router.get('/validity', userMiddlewares.newUserValidity);
-router.get('/exists', userMiddlewares.userExists);
+router.post('/validity', userMiddlewares.newUserValidity);
+router.post('/exists', userMiddlewares.userExists);
 
 router.post('/register', userFunctions.register);
 router.get('/cancelRegistration', (req, res) => { req.session.destroy() });
