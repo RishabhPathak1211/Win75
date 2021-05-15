@@ -4,10 +4,11 @@ const userMiddlewares = require('../utils/middlewares/user');
 const productMiddlewares = require('../utils/middlewares/product');
 const productFunctions = require('../controllers/product');
 const multer = require('multer');
+const { storage } = require('../utils/cloudinary');
 
-const upload = multer({ dest: 'uploads/' });
+const upload = multer({ storage });
 
-router.post('/new', userMiddlewares.isLoggedIn, upload.array('images', 5), productFunctions.createProduct);
+router.post('/new', userMiddlewares.isLoggedIn, upload.array('images'), productFunctions.createProduct);
 
 router.get('/premium', productFunctions.premiumProducts);
 router.get('/home', productFunctions.homeProducts);
