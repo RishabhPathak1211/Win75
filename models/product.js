@@ -63,10 +63,18 @@ ProductSchema.index(
 
 ProductSchema.pre('save', async function (next) {
     try {
-        const user = await User.findById(this.author);
-        user.myProducts.push(this._id);
-        user.activityLog.push({ product: this._id, activityType: 'Created' });
-        await user.save();
+        const user = await User.findByIdAndUpdate(this.author, {
+                                                        $push: {
+                                                            myProducts: this._id,
+                                                            activityLog: {
+                                                                product: this._id,
+                                                                activityType: 'Created'
+                                                            }
+                                                        } 
+                                                    });
+        // user.myProducts.push(this._id);
+        // user.activityLog.push({ product: this._id, activityType: 'Created' });
+        // await user.save();
         next();
     } catch (e) {
         next(new ExpressError('Something went wrong', 500, e));
@@ -75,8 +83,15 @@ ProductSchema.pre('save', async function (next) {
 
 ProductSchema.post('findOneAndUpdate', async function (doc) {
     if (doc) {
-        const user = await User.findById(doc.author);
-        user.activityLog.push({ product: doc._id, activityType: 'Updated' });
+        const user = await User.findByIdAndUpdate(doc.author, {
+                                                        $push: {
+                                                            activityLog: {
+                                                                product: doc._id,
+                                                                activityType: 'Updated'
+                                                            }
+                                                        }
+                                                    });
+        // user.activityLog.push({ product: doc._id, activityType: 'Updated' });
         await user.save();
     }
 });
@@ -84,11 +99,15 @@ ProductSchema.post('findOneAndUpdate', async function (doc) {
 ProductSchema.post('findOneAndDelete', async function (doc) {
     if (doc) {
         for (let img of doc.imgs) await cloudinary.uploader.destroy(img.filename);
-        const user = await User.findById(doc.author);
-        const index = user.myProducts.indexOf(doc._id);
-        if (index > -1)
-            user.myProducts.splice(index, 1);
-        await user.save();
+        const user = await User.findByIdAndUpdate(doc.author, {
+                                                        $pull: {
+                                                            myProducts: doc._id
+                                                        }
+                                                    });
+        // const index = user.myProducts.indexOf(doc._id);
+        // if (index > -1)
+        //     user.myProducts.splice(index, 1);
+        // await user.save();
     }
 });
 

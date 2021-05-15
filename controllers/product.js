@@ -21,6 +21,7 @@ module.exports.premiumProducts = async (req, res, next) => {
 
 module.exports.createProduct = async (req, res, next) => {
     try {
+        console.log('entered')
         const product = new Product(req.body);
         product.imgs = req.files.map(f => ({ url: f.path, filename: f.filename }));
         product.author = req.session.user_id;
@@ -59,7 +60,7 @@ module.exports.updateProduct = async (req, res, next) => {
     }
 }
 
-module.exports.deleteProduct = async (req, res) => {
+module.exports.deleteProduct = async (req, res, next) => {
     try {
         const { id } = req.params;
         await Product.findByIdAndDelete(id);
