@@ -74,6 +74,7 @@ module.exports.resetPassword = async (req, res, next) => {
 
             delete req.session.phone;
             delete req.session.password;
+            delete req.session.otp;
 
             return res.status(200).json({ status: 'ok', msg: 'Password reset successful' });
         }
@@ -111,7 +112,7 @@ module.exports.updateProfile = async (req, res, next) => {
 module.exports.userData = async (req, res, next) => {
     try {
         const user = await User.findById(req.session.user_id)
-                                .select('-myProducts -favProducts -password');
+                                .select('-myProducts -favProducts -password -activityLog');
         return res.status(200).json({ status: true, user });
     } catch (e) {
         next(new ExpressError('Something went wrong', 500, e));

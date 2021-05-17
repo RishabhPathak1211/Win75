@@ -43,13 +43,8 @@ module.exports.newUserValidity = async (req, res, next) => {
 
 module.exports.userExists = async (req, res, next) => {
     try {
-        const { username, phone, password } = req.body;
-        const user = await User.findOne({
-            $and: [
-                { username },
-                { phone }
-            ]
-        });
+        const { phone, password } = req.body;
+        const user = await User.findOne({ phone });
         if (!user) {
             return next(new ExpressError('User not found', 403));
         }
