@@ -86,7 +86,6 @@ UserSchema.pre('save', async function (next) {
         this.password = await bcrypt.hash(this.password, 12);
         if (!this.referral) {
             let tmpReferral = crypto.randomBytes(10).toString('hex');
-            console.log(this);
             let exists = await this.model('User').findOne({ referral: tmpReferral });
             while (exists) {
                 tmpReferral = crypto.randomBytes(10).toString('hex');

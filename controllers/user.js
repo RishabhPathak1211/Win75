@@ -2,29 +2,43 @@ const User = require('../models/user');
 const Product = require('../models/product');
 const ExpressError = require('../utils/ExpressError');
 const { cloudinary } = require('../utils/cloudinary');
+const nexmo = require('../utils/nexmo');
 
-module.exports.sendOTP = (req, res) => {
-    const otp = (Math.floor(100000 + Math.random() * 900000)).toString();
-    req.session.otp = otp;
-    res.status(200).json({ 'otp': otp});
+module.exports.sendOTP = async (req, res, next) => {
+    try {
+        const otp = (Math.floor(100000 + Math.random() * 900000)).toString();
+        req.session.otp = otp;
+        const response = await nexmo.message.sendSms(process.env.NEXMO_FROM_ADDRESS, '+91 91639 69400', `Your verification code is ${otp}`);
+        // console.log(response);
+        res.status(200).json({ status: 'ok', msg: 'OTP sent' });
+    } catch (e) {
+        next(new ExpressError('Something went wrong', 500, e));
+    }
 }
 
 module.exports.register = async (req, res, next) => {
     try {
-        // const { otp } = req.body;
+        const { otp } = req.body;
         const { username, phone, password, referral } = req.session;
-        // if (otp === req.session.otp) {
-        if (referral) {
-            await User.findOneAndUpdate({ referral }, { $inc: { wallet: 50 } }, { new: true });
-            //  refUser benefiys goes here
+        if (otp === req.session.otp) {
+            if (referral) {
+                await User.findOneAndUpdate({ referral }, { $inc: { wallet: 50 } }, { new: true });
+            }
+            const newUser = new User({ username, phone, password });
+            await newUser.save();
+
+            delete req.session.username;
+            delete req.session.phone;
+            delete req.session.password;
+            delete req.session.referral;
+            delete req.session.otp;
+
+            req.session.user_id = newUser._id;
+            return res.status(200).json({ 'status': true, 'msg': 'Registration Succesful' });
         }
-        const newUser = new User({ username, phone, password });
-        await newUser.save();
-        req.session.user_id = newUser._id;
-        return res.status(200).json({ 'status': true, 'msg': 'Registration Succesful' });
-        // }
         return next(new ExpressError('OTP Mismatch', 403));
     } catch (e) {
+        req.session.destroy();
         next(new ExpressError('Something went wrong', 500, e));
     }
 }
@@ -50,13 +64,22 @@ module.exports.logout = (req, res) => {
 
 module.exports.resetPassword = async (req, res, next) => {
     try {
-        const { password, phone } = req.body;
-        const user = await User.findOne({ phone });
-        if (!user) return next(new ExpressError('User not found', 403));
-        user.password = password;
-        await user.save();
-        return res.status(200).json({ status: 'ok', msg: 'Password reset successful' });
+        const { otp } = req.body;
+        const { phone, password } = req.session;
+        if (otp === req.session.otp) {
+            const user = await User.findOne({ phone });
+            if (!user) return next(new ExpressError('User not found', 403));
+            user.password = password;
+            await user.save();
+
+            delete req.session.phone;
+            delete req.session.password;
+
+            return res.status(200).json({ status: 'ok', msg: 'Password reset successful' });
+        }
+        return next(new ExpressError('OTP mismatch', 403));
     } catch (e) {
+        req.session.destroy();
         next(new ExpressError('Something went wrong', 500, e));
     }
 }

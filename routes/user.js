@@ -8,11 +8,11 @@ const { storage } = require('../utils/cloudinary');
 
 const upload = multer({ storage });
 
-// router.post('/sendOTP', userMiddlewares.newUserValidity, userFunctions.sendOTP);
-// router.get('/resendOTP', userFunctions.sendOTP);
-// router.post('/passwordResetOTP', userMiddlewares.userExists, userFunctions.sendOTP);
-router.post('/validity', userMiddlewares.newUserValidity);
-router.post('/exists', userMiddlewares.userExists);
+router.post('/sendOTP', userMiddlewares.newUserValidity, userFunctions.sendOTP);
+router.get('/resendOTP', userFunctions.sendOTP);
+router.post('/passwordResetOTP', userMiddlewares.userExists, userFunctions.sendOTP);
+// router.post('/validity', userMiddlewares.newUserValidity);
+// router.post('/exists', userMiddlewares.userExists);
 
 router.post('/register', userFunctions.register);
 router.get('/cancelRegistration', (req, res) => { req.session.destroy() });
