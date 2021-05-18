@@ -74,7 +74,7 @@ module.exports.homeProducts = async (req, res, next) => {
     try {
         const carouselProds = await Product.find({ advertisement: 2 });
         const gridProds = await Product.find({ advertisement: { $ne: 2 } })
-                                        .sort({ advertisement: -1, created: 1 });
+                                        .sort({ advertisement: -1, created: -1 });
         return res.status(200).json({ status: 'ok', carouselProds, gridProds });
     } catch (e) {
         next(new ExpressError('Something went wrong', 500, e));

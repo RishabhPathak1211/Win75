@@ -40,7 +40,8 @@ const ProductSchema = new mongoose.Schema({
     },
     category: {
         type: String,
-        required: true
+        required: true,
+        enum: [ 'Electronics', 'Fashion', 'Appliances', 'Accessories', 'Automobiles', 'Books', 'Entertainment' ]
     },
     tags: [String],
 }, { versionKey: false });

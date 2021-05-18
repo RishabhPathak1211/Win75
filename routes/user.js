@@ -20,6 +20,12 @@ router.post('/login', userFunctions.login);
 router.get('/logout', userMiddlewares.isLoggedIn, userFunctions.logout);
 router.patch('/passwordReset', userFunctions.resetPassword);
 
+router.get('/isLoggedIn', (req, res) => {
+    if (req.session && req.session.user_id)
+        return res.json({ status: true });
+    res.json({ status: false });
+})
+
 router.route('/userData')
     .get(userMiddlewares.isLoggedIn, userFunctions.userData)
     .patch(userMiddlewares.isLoggedIn, upload.single('profileImg'), userFunctions.updateProfile);
