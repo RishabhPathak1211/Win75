@@ -78,7 +78,7 @@ ProductSchema.pre('save', async function (next) {
         // await user.save();
         next();
     } catch (e) {
-        next(new ExpressError('Something went wrong', 500, e));
+        next(e);
     }
 });
 

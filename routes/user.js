@@ -15,7 +15,10 @@ router.post('/passwordResetOTP', userMiddlewares.userExists, userFunctions.sendO
 // router.post('/exists', userMiddlewares.userExists);
 
 router.post('/register', userFunctions.register);
-router.get('/cancelRegistration', (req, res) => { req.session.destroy() });
+router.get('/cancelRegistration', (req, res) => { 
+    req.session.destroy();
+    res.status(200).json({ status: 'ok', msg: 'Registration cancelled' }) 
+});
 router.post('/login', userFunctions.login);
 router.get('/logout', userMiddlewares.isLoggedIn, userFunctions.logout);
 router.patch('/passwordReset', userFunctions.resetPassword);

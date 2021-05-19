@@ -21,7 +21,6 @@ module.exports.premiumProducts = async (req, res, next) => {
 
 module.exports.createProduct = async (req, res, next) => {
     try {
-        console.log('entered')
         const product = new Product(req.body);
         product.imgs = req.files.map(f => ({ url: f.path, filename: f.filename }));
         product.author = req.session.user_id;
@@ -90,7 +89,8 @@ module.exports.searchProducts = async (req, res, next) => {
                                             .sort({ advertisement: -1, created: -1 });
             return res.status(200).json({ status: true, products });
         } else {
-            const products = await Product.find({ category, $text: { $search: q } });
+            const products = await Product.find({ category, $text: { $search: q }, advertisement: { $ne: 2 } })
+                                            .sort({ advertisement: -1, created: -1 });
             return res.status(200).json({ status: true, products });
         }
     } catch (e) {

@@ -10,9 +10,8 @@ const upload = multer({ storage });
 
 router.post('/new', userMiddlewares.isLoggedIn, upload.array('images'), productFunctions.createProduct);
 
-router.get('/premium', productFunctions.premiumProducts);
+// router.get('/premium', productFunctions.premiumProducts);
 router.get('/home', productFunctions.homeProducts);
-
 router.get('/search', productFunctions.searchProducts);
 
 router.route('/:id')

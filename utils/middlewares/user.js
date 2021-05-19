@@ -37,7 +37,7 @@ module.exports.newUserValidity = async (req, res, next) => {
 
         return next();
     } catch (e) {
-        next(new ExpressError('Something went wrong', 500));
+        next(new ExpressError('Something went wrong', 500, e));
     }
 }
 

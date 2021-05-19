@@ -68,7 +68,6 @@ module.exports.resetPassword = async (req, res, next) => {
         const { phone, password } = req.session;
         if (otp === req.session.otp) {
             const user = await User.findOne({ phone });
-            if (!user) return next(new ExpressError('User not found', 403));
             user.password = password;
             await user.save();
 
