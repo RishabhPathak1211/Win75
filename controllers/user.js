@@ -123,6 +123,7 @@ module.exports.userProducts = async (req, res, next) => {
         const user = await User.findById(req.session.user_id)
                                         .select('myProducts')
                                         .populate('myProducts', '-advertisement');
+        user.myProducts.reverse();
         return res.status(200).json({ status: true, myProducts: user.myProducts });
     } catch (e) {
         next(new ExpressError('Something went wrong', 500, e));
@@ -145,7 +146,11 @@ module.exports.userActivity = async (req, res, next) => {
         const user = await User.findById(req.session.user_id)
                                 .select('activityLog')
                                 .populate('activityLog.product');
-        return res.status(200).json({ status: true, activityLog: user.activityLog });
+        const activityLog = user.activityLog.filter((log) => {
+            return log.product != null;
+        });
+        activityLog.reverse();
+        return res.status(200).json({ status: true, activityLog });
     } catch (e) {
         next(new ExpressError('Something went wrong', 500, e));
     }
