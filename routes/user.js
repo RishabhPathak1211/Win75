@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const userFunctions = require('../controllers/user');
+const paymentFunctions = require('../controllers/payments');
 const userMiddlewares = require('../utils/middlewares/user');
 const productMiddlewares = require('../utils/middlewares/product');
 const multer = require('multer');
@@ -39,5 +40,9 @@ router.get('/activityLog', userMiddlewares.isLoggedIn, userFunctions.userActivit
 
 router.get('/favourites/add', userMiddlewares.isLoggedIn, productMiddlewares.productExists, userFunctions.addToFavs);
 router.get('/favourites/remove', userMiddlewares.isLoggedIn, userFunctions.removeFromFavs);
+
+router.get('/order', userMiddlewares.isLoggedIn, paymentFunctions.getOrder);
+router.post('/captureSubscription', paymentFunctions.catchSubscription);
+router.post('/captureWallet', paymentFunctions.catchWallet);
 
 module.exports = router;

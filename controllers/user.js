@@ -1,4 +1,6 @@
 const User = require('../models/user');
+const Message = require('../models/message');
+const Chatroom = require('../models/chatroom');
 const Product = require('../models/product');
 const ExpressError = require('../utils/ExpressError');
 const { cloudinary } = require('../utils/cloudinary');
@@ -34,6 +36,15 @@ module.exports.register = async (req, res, next) => {
             delete req.session.otp;
 
             req.session.user_id = newUser._id;
+
+            const admin = await User.findOne({ username: 'BetterDeal' });
+            const content = `Welcome to BetterDeal ${username}! Thank you for joining us. How can we help you today?`
+            const adminMessage = new Message({ sender: admin._id, receiver: req.session.user_id, content });
+            await adminMessage.save();
+
+            const adminChat = new Chatroom({ participants: [ admin._id, req.session.user_id ], lastMessage: adminMessage });
+            await adminChat.save();
+
             return res.status(200).json({ 'status': true, 'msg': 'Registration Succesful' });
         }
         return next(new ExpressError('OTP Mismatch', 403));

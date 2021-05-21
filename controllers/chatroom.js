@@ -74,7 +74,7 @@ module.exports.sendMessage = async (req, res, next) => {
     }
 }
 
-module.exports.transferAmount = (req, res, next) => {
+module.exports.transferAmount = async (req, res, next) => {
     try {
         const { senderid, receiverid, amount } = req.body;
         const sender = await User.findById(senderid).select('wallet');
@@ -85,4 +85,11 @@ module.exports.transferAmount = (req, res, next) => {
     } catch (e) {
         next(new ExpressError('Something went wrong', 500, e));
     }
+}
+
+module.exports.adminChat = async ( req, res, next ) => {
+    const currentUser = await User.findById(req.session.user_id, { username: 1 });
+    const admin = await User.findOne({ username: 'BetterDeal' });
+    const adminChat = await Chatroom.findOne({ participants: [ admin._id, req.session.user_id ] });
+    return res.status(200).json({ status: 'ok', currentUser, adminChat });
 }
