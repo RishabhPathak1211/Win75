@@ -155,15 +155,6 @@ module.exports.userActivity = async (req, res, next) => {
         next(new ExpressError('Something went wrong', 500, e));
     }
 }
- 
-// module.exports.forgotPassword = async (req, res) => {
-//     const { newpassword } = req.body;
-//     const foundUser = await User.findOne({ username });
-//     if (!foundUser)
-//         return res.send('User not found');
-//     foundUser.password = newpassword;
-//     await foundUser.save();
-// }
 
 module.exports.addToFavs = async (req, res, next) => {
     try {

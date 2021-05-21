@@ -73,3 +73,16 @@ module.exports.sendMessage = async (req, res, next) => {
         next(new ExpressError('Something went wrong', 500, e));
     }
 }
+
+module.exports.transferAmount = (req, res, next) => {
+    try {
+        const { senderid, receiverid, amount } = req.body;
+        const sender = await User.findById(senderid).select('wallet');
+        if (sender.wallet < amount)
+            return next(new ExpressError('Insufficient balance', 403));
+        await User.findByIdAndUpdate(senderid, { $inc: { wallet: -amount } });
+        await User.findByIdAndUpdate(receiverid, { $inc: { wallet: amount } });
+    } catch (e) {
+        next(new ExpressError('Something went wrong', 500, e));
+    }
+}
