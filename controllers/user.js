@@ -36,14 +36,15 @@ module.exports.register = async (req, res, next) => {
             delete req.session.otp;
 
             req.session.user_id = newUser._id;
+            if (newUser.username !== 'BetterDeal') {
+                const admin = await User.findOne({ username: 'BetterDeal' });
+                const content = `Welcome to BetterDeal ${username}! Thank you for joining us. How can we help you today?`
+                const adminMessage = new Message({ sender: admin._id, receiver: req.session.user_id, content });
+                await adminMessage.save();
 
-            const admin = await User.findOne({ username: 'BetterDeal' });
-            const content = `Welcome to BetterDeal ${username}! Thank you for joining us. How can we help you today?`
-            const adminMessage = new Message({ sender: admin._id, receiver: req.session.user_id, content });
-            await adminMessage.save();
-
-            const adminChat = new Chatroom({ participants: [ admin._id, req.session.user_id ], lastMessage: adminMessage });
-            await adminChat.save();
+                const adminChat = new Chatroom({ participants: [ admin._id, req.session.user_id ], lastMessage: adminMessage });
+                await adminChat.save();
+            }
 
             return res.status(200).json({ 'status': true, 'msg': 'Registration Succesful' });
         }

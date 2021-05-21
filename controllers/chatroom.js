@@ -3,6 +3,7 @@ const Message = require('../models/message');
 const User = require('../models/user');
 const ExpressError = require('../utils/ExpressError');
 const { decrypt } = require('../utils/crypt');
+const chatroom = require('../models/chatroom');
 
 module.exports.getChats = async (req, res, next) => {
     try {
@@ -10,9 +11,22 @@ module.exports.getChats = async (req, res, next) => {
         const chatrooms = await Chatroom.find({ participants: { $in: [req.session.user_id] } })
                                         .populate('participants', '_id username')
                                         .populate('lastMessage');
+
         if (!chatrooms) {
             return res.status(200).json({ status: 'ok', currentUser, chatList: [] });
         }
+
+        // if (currentUser.username !== 'BetterDeal') {
+        //     const admin = await User.findOne({ username: 'BetterDeal'}, { username: 1 });
+        //     const adminChat = await Chatroom.findOne({ participants: [ admin._id, req.session.user_id ] })
+        //                                     .populate('participants', '_id username')
+        //                                     .populate('lastMessage');
+        //     let index = chatrooms.indexOf(adminChat);
+        //     console.log(index);
+        //     if (index > -1)
+        //         chatrooms.splice(index, 1);
+        // }
+
         const chatList = chatrooms.map((doc) => {
             doc.lastMessage.content = decrypt(doc.lastMessage.content, doc.lastMessage.iv);
             return {
@@ -20,9 +34,11 @@ module.exports.getChats = async (req, res, next) => {
                 lastMessage: (({ _id, content, sender, receiver, timestamp }) => ({ _id, content, sender, receiver, timestamp }))(doc.lastMessage)
             }
         });
+
         chatList.sort((a, b) => {
             return b.lastMessage.timestamp - a.lastMessage.timestamp;
         });
+
         return res.status(200).json({ status: 'ok', currentUser, chatList });
     } catch (e) {
         next(new ExpressError('Something went wrong', 500, e));
@@ -88,8 +104,12 @@ module.exports.transferAmount = async (req, res, next) => {
 }
 
 module.exports.adminChat = async ( req, res, next ) => {
-    const currentUser = await User.findById(req.session.user_id, { username: 1 });
-    const admin = await User.findOne({ username: 'BetterDeal' });
-    const adminChat = await Chatroom.findOne({ participants: [ admin._id, req.session.user_id ] });
-    return res.status(200).json({ status: 'ok', currentUser, adminChat });
+    try {
+        const currentUser = await User.findById(req.session.user_id, { username: 1 });
+        const admin = await User.findOne({ username: 'BetterDeal' });
+        const adminChat = await Chatroom.findOne({ participants: [ admin._id, req.session.user_id ] });
+        return res.status(200).json({ status: 'ok', currentUser, adminChat });
+    } catch (e) {
+        next(new ExpressError('Something went wrong', 500, e));
+    }
 }

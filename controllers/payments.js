@@ -7,7 +7,7 @@ module.exports.getOrder = (req, res, next) => {
     try {
         if (req.query.amount) req.session.amount = amount;
         var options = {  
-            amount: req.query.amount || 500,
+            amount: (req.query.amount || 500) * 100,
             currency: "INR", 
         };
         rpinstance.orders.create(options, function(err, order) {
