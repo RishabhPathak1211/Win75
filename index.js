@@ -1,4 +1,6 @@
-require('dotenv').config();
+if (process.env.NODE_ENV !== "production") {
+    require('dotenv').config();
+}
 const { httpServer, db } = require('./app');
 const webSocket = require('./utils/WebSocket');
 
@@ -9,7 +11,7 @@ db.once('open', () => {
 
 webSocket();
 
-const port = process.env.PORT;
+const port = process.env.PORT || 3000;
 
 httpServer.listen(port, () => {
     console.log(`Listening on port ${port}`);
