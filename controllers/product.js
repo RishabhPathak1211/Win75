@@ -34,7 +34,7 @@ module.exports.createProduct = async (req, res, next) => {
 module.exports.viewProduct = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const product = await Product.findById(id).populate('author');
+        const product = await Product.findById(id).populate('author -password');
         if (product) {
             return res.status(200).json({ 'status': true, product });
         }
