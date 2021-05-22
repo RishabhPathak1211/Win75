@@ -16,16 +16,20 @@ module.exports.getChats = async (req, res, next) => {
             return res.status(200).json({ status: 'ok', currentUser, chatList: [] });
         }
 
-        // if (currentUser.username !== 'BetterDeal') {
-        //     const admin = await User.findOne({ username: 'BetterDeal'}, { username: 1 });
-        //     const adminChat = await Chatroom.findOne({ participants: [ admin._id, req.session.user_id ] })
-        //                                     .populate('participants', '_id username')
-        //                                     .populate('lastMessage');
-        //     let index = chatrooms.indexOf(adminChat);
-        //     console.log(index);
-        //     if (index > -1)
-        //         chatrooms.splice(index, 1);
-        // }
+        if (currentUser.username !== 'BetterDeal') {
+            const admin = await User.findOne({ username: 'BetterDeal'}, { username: 1 });
+            const adminChat = await Chatroom.findOne({ participants: [ admin._id, req.session.user_id ] })
+                                            .populate('participants', '_id username')
+                                            .populate('lastMessage');
+            let index = 0;
+            for (let cr of chatrooms) {
+                if (cr.participants[0].username === 'BetterDeal')
+                    index = chatrooms.indexOf(cr)
+            }
+            console.log(index);
+            if (index > -1)
+                chatrooms.splice(index, 1);
+        }
 
         const chatList = chatrooms.map((doc) => {
             doc.lastMessage.content = decrypt(doc.lastMessage.content, doc.lastMessage.iv);
@@ -107,7 +111,9 @@ module.exports.adminChat = async ( req, res, next ) => {
     try {
         const currentUser = await User.findById(req.session.user_id, { username: 1 });
         const admin = await User.findOne({ username: 'BetterDeal' });
-        const adminChat = await Chatroom.findOne({ participants: [ admin._id, req.session.user_id ] });
+        let adminChat = await Chatroom.findOne({ participants: [ admin._id, req.session.user_id ] }, { participants: 0 })
+                                        .populate('lastMessage');
+        adminChat.lastMessage.content = decrypt(adminChat.lastMessage.content, adminChat.lastMessage.iv);
         return res.status(200).json({ status: 'ok', currentUser, adminChat });
     } catch (e) {
         next(new ExpressError('Something went wrong', 500, e));
